@@ -700,24 +700,32 @@
                 font-size: 16px;
             }
 
-            .version-pill,
-            .nav-actions .action-link.secondary {
+            .version-pill {
                 display: none;
             }
 
             .nav-actions {
                 flex-shrink: 0;
+                gap: 4px;
             }
 
             .action-link.primary {
-                width: 38px;
-                height: 38px;
+                width: 34px;
+                height: 34px;
                 justify-content: center;
                 padding: 0;
                 font-size: 0;
             }
 
-            .action-link.primary i {
+            .nav-actions .action-link {
+                width: 30px;
+                height: 34px;
+                justify-content: center;
+                padding: 0;
+                font-size: 0;
+            }
+
+            .nav-actions .action-link i {
                 font-size: 16px;
             }
 
@@ -794,7 +802,7 @@
             }
         }
 
-        @media (max-width: 360px) {
+        @media (max-width: 380px) {
             .brand-badge {
                 font-size: 13px;
             }
@@ -807,6 +815,10 @@
             .menu-toggle {
                 min-width: 38px;
                 padding: 5px 8px;
+            }
+
+            .nav-actions .action-link.secondary {
+                display: none;
             }
         }
     </style>
@@ -829,10 +841,10 @@
         </div>
 
         <nav class="nav-actions">
-            <a href="phone-code.html" class="action-link secondary" target="_blank">
+            <a href="phone-code.html" class="action-link secondary" target="_blank" aria-label="Live demo">
                 <i class="bi bi-play-circle"></i> Live Demo
             </a>
-            <a href="README.md" class="action-link secondary">
+            <a href="README.md" class="action-link secondary" aria-label="README">
                 <i class="bi bi-file-text"></i> README
             </a>
             <a href="https://github.com" class="action-link primary" target="_blank" aria-label="Source code">
