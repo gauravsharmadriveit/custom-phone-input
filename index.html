@@ -252,6 +252,7 @@
         .main-content {
             margin-left: var(--sidebar-w);
             flex: 1;
+            min-width: 0;
             padding: 40px 48px 80px;
             max-width: 1060px;
         }
@@ -623,11 +624,18 @@
 
         /* ------------------ Responsive Styles ------------------ */
         @media (max-width: 900px) {
+            .top-navbar {
+                padding: 0 20px;
+            }
+
             .menu-toggle {
                 display: block;
+                min-width: 42px;
+                min-height: 42px;
             }
 
             .sidebar {
+                width: min(var(--sidebar-w), 86vw);
                 transform: translateX(-100%);
                 transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
                 box-shadow: 4px 0 20px rgba(0,0,0,0.1);
@@ -639,7 +647,18 @@
 
             .main-content {
                 margin-left: 0;
+                width: 100%;
+                max-width: none;
+                min-width: 0;
                 padding: 24px 20px 60px;
+            }
+
+            .nav-actions {
+                gap: 8px;
+            }
+
+            .action-link {
+                padding: 7px 10px;
             }
 
             .hero-banner {
@@ -654,6 +673,142 @@
                 padding: 24px 20px;
             }
         }
+
+        @media (max-width: 600px) {
+            :root {
+                --header-h: 60px;
+            }
+
+            .top-navbar {
+                padding: 0 12px;
+            }
+
+            .brand-group {
+                gap: 8px;
+                min-width: 0;
+            }
+
+            .brand-badge {
+                gap: 7px;
+                font-size: 15px;
+                white-space: nowrap;
+            }
+
+            .brand-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+
+            .version-pill,
+            .nav-actions .action-link.secondary {
+                display: none;
+            }
+
+            .nav-actions {
+                flex-shrink: 0;
+            }
+
+            .action-link.primary {
+                width: 38px;
+                height: 38px;
+                justify-content: center;
+                padding: 0;
+                font-size: 0;
+            }
+
+            .action-link.primary i {
+                font-size: 16px;
+            }
+
+            .main-content {
+                padding: 18px 14px 48px;
+            }
+
+            .hero-banner {
+                padding: 24px 18px;
+                margin-bottom: 24px;
+            }
+
+            .hero-title {
+                font-size: clamp(23px, 6vw, 28px);
+            }
+
+            .hero-subtitle {
+                font-size: 14px;
+            }
+
+            .hero-tags {
+                gap: 8px;
+            }
+
+            .hero-tag {
+                font-size: 11.5px;
+                padding: 5px 9px;
+            }
+
+            .doc-section {
+                padding: 20px 16px;
+                margin-bottom: 22px;
+                scroll-margin-top: 76px;
+            }
+
+            .section-header {
+                gap: 10px;
+            }
+
+            .section-title {
+                font-size: 19px;
+            }
+
+            .section-desc,
+            .doc-section > p {
+                font-size: 14px;
+            }
+
+            .demo-grid,
+            .feature-grid {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 14px;
+            }
+
+            .demo-card {
+                padding: 18px;
+            }
+
+            .code-header {
+                padding: 9px 12px;
+            }
+
+            pre {
+                padding: 14px;
+                font-size: 12px;
+            }
+
+            .table-wrap table {
+                min-width: 560px;
+            }
+
+            .doc-section code {
+                overflow-wrap: anywhere;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .brand-badge {
+                font-size: 13px;
+            }
+
+            .brand-icon {
+                width: 29px;
+                height: 29px;
+            }
+
+            .menu-toggle {
+                min-width: 38px;
+                padding: 5px 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -661,7 +816,7 @@
     <!-- ================= Top Navbar ================= -->
     <header class="top-navbar">
         <div class="brand-group">
-            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
             <a href="#" class="brand-badge">
@@ -680,7 +835,7 @@
             <a href="README.md" class="action-link secondary">
                 <i class="bi bi-file-text"></i> README
             </a>
-            <a href="https://github.com" class="action-link primary" target="_blank">
+            <a href="https://github.com" class="action-link primary" target="_blank" aria-label="Source code">
                 <i class="bi bi-github"></i> Source Code
             </a>
         </nav>
@@ -1221,14 +1376,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         const sidebar = document.getElementById('sidebar');
 
         if (toggleBtn && sidebar) {
+            const setSidebarOpen = (isOpen) => {
+                sidebar.classList.toggle('open', isOpen);
+                toggleBtn.setAttribute('aria-expanded', String(isOpen));
+            };
+
             toggleBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                sidebar.classList.toggle('open');
+                setSidebarOpen(!sidebar.classList.contains('open'));
             });
 
             document.addEventListener('click', (e) => {
                 if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-                    sidebar.classList.remove('open');
+                    setSidebarOpen(false);
+                }
+            });
+
+            sidebar.querySelectorAll('.sidebar-link').forEach(link => {
+                link.addEventListener('click', () => setSidebarOpen(false));
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    setSidebarOpen(false);
                 }
             });
         }
