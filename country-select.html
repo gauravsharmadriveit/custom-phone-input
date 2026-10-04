@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Country</title>
+
+<style>
+    :root {
+        --ink: #1b2430;
+        --muted: #6b7686;
+        --line: #d5dbe3;
+        --accent: #0f5c8c;
+        --accent-soft: #e6f0f7;
+    }
+
+    body {
+        margin: 0;
+        padding: 40px 16px;
+        background: #f6f8fa;
+        font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+        color: var(--ink);
+    }
+
+    .form-wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        padding: 28px;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+    }
+
+    .form-wrap label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    /* Native select (JS ke baad hide ho jata hai) */
+    .country-select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font: inherit;
+    }
+
+    /* ---------- Custom flag dropdown ---------- */
+    .flag-select {
+        position: relative;
+    }
+
+    .flag-select-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .flag-select-btn:focus-visible,
+    .flag-select.open .flag-select-btn {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .flag-select-btn .label { flex: 1; }
+    .flag-select-btn .label.placeholder { color: #9aa4b2; }
+
+    .flag-select-btn .arrow {
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid var(--muted);
+        border-bottom: 2px solid var(--muted);
+        transform: rotate(45deg) translateY(-2px);
+        transition: transform .2s;
+    }
+
+    .flag-select.open .arrow { transform: rotate(225deg); }
+
+    .flag-img {
+        width: 22px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .flag-menu {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(27, 36, 48, .12);
+        overflow: hidden;
+    }
+
+    .flag-select.open .flag-menu { display: block; }
+
+    .flag-search {
+        width: 100%;
+        padding: 11px 14px;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+        font: inherit;
+        outline: none;
+    }
+
+    .flag-list {
+        max-height: 260px;
+        overflow-y: auto;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .flag-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        cursor: pointer;
+    }
+
+    .flag-option:hover { background: var(--accent-soft); }
+    .flag-option.selected { background: var(--accent-soft); font-weight: 600; }
+
+    .flag-empty {
+        padding: 18px 14px;
+        text-align: center;
+        color: var(--muted);
+    }
+</style>
+</head>
+<body>
+
+<!-- ================= HTML ================= -->
+<form class="form-wrap">
+    <label for="countrySelect">Country</label>
+
+    <!-- Bas ye rakhna hai. Options aur flag dropdown JS banayega -->
+    <select id="countrySelect" name="country" class="country-select">
+        <option value="">Select country</option>
+    </select>
+
+    <!-- JS isme selected country ka name bharta hai -->
+    <input type="hidden" id="countryname_select" name="country_name">
+</form>
+
+<!-- ================= JS ================= -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    const FALLBACK_FLAG = "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg";
+
+    const select = $("#countrySelect");
+    let countries = [];
+
+    function esc(text) {
+        return $("<div>").text(text == null ? "" : text).html();
+    }
+
+    function flagImg(country) {
+        const src = country && country.flag ? country.flag : FALLBACK_FLAG;
+        return '<img class="flag-img" src="' + esc(src) + '" alt="" loading="lazy" ' +
+               'onerror="this.onerror=null;this.src=\'' + FALLBACK_FLAG + '\';">';
+    }
+
+    $.getJSON("data/countries.json")
+        .done(function (data) {
+
+            countries = Array.isArray(data) ? data : [];
+
+            if (!countries.length) {
+                console.error("Country data is empty.");
+                return;
+            }
+
+            countries.sort(function (a, b) {
+                return String(a.name || "").localeCompare(String(b.name || ""));
+            });
+
+            // Native select ke options (form value yahin se jayegi)
+            countries.forEach(function (country) {
+                select.append(
+                    $("<option>", {
+                        value: country.name,
+                        text: country.name,
+                        "data-iso": country.iso2 || "",
+                        "data-code": country.code || ""
+                    })
+                );
+            });
+
+            buildFlagDropdown();
+
+            geoIpLookup(function (countryCode) {
+
+                const code = (countryCode || "IN").toUpperCase();
+
+                const match = countries.find(function (country) {
+                    return country.iso2 && country.iso2.toUpperCase() === code;
+                });
+
+                if (match) {
+                    setCountry(match.name);
+                }
+
+            });
+
+        })
+        .fail(function (xhr, status, error) {
+            console.error("Unable to load countries.json:", error);
+        });
+
+
+    function buildFlagDropdown() {
+
+        // Native select hide, custom UI uske upar
+        select.hide().after(`
+            <div class="flag-select" id="flagSelect">
+                <button type="button" class="flag-select-btn" id="flagBtn" aria-haspopup="listbox">
+                    <img class="flag-img" id="flagBtnImg" src="${FALLBACK_FLAG}" alt="">
+                    <span class="label placeholder" id="flagBtnLabel">Select country</span>
+                    <span class="arrow"></span>
+                </button>
+                <div class="flag-menu">
+                    <input type="text" class="flag-search" id="flagSearch"
+                           placeholder="Search country..." autocomplete="off">
+                    <ul class="flag-list" id="flagList" role="listbox"></ul>
+                </div>
+            </div>
+        `);
+
+        renderList();
+
+        $("#flagBtn").on("click", function (event) {
+            event.stopPropagation();
+            $("#flagSelect").toggleClass("open");
+
+            if ($("#flagSelect").hasClass("open")) {
+                $("#flagSearch").val("").focus();
+                renderList();
+            }
+        });
+
+        $("#flagSearch").on("input", function () {
+            renderList($(this).val());
+        });
+
+        $("#flagList").on("click", ".flag-option", function () {
+            setCountry($(this).data("name"));
+            $("#flagSelect").removeClass("open");
+        });
+
+        $(document).on("click", function (event) {
+            if (!$(event.target).closest("#flagSelect").length) {
+                $("#flagSelect").removeClass("open");
+            }
+        });
+
+        $(document).on("keydown", function (event) {
+            if (event.key === "Escape") {
+                $("#flagSelect").removeClass("open");
+            }
+        });
+
+    }
+
+
+    function renderList(search) {
+
+        const list = $("#flagList");
+        const keyword = String(search || "").trim().toLowerCase();
+        const current = select.val();
+
+        list.empty();
+
+        const filtered = countries.filter(function (country) {
+            return (
+                String(country.name || "").toLowerCase().includes(keyword) ||
+                String(country.iso2 || "").toLowerCase().includes(keyword)
+            );
+        });
+
+        if (!filtered.length) {
+            list.html('<li class="flag-empty">No country found</li>');
+            return;
+        }
+
+        filtered.forEach(function (country) {
+            list.append(
+                '<li class="flag-option' + (country.name === current ? " selected" : "") +
+                '" role="option" data-name="' + esc(country.name) + '">' +
+                flagImg(country) +
+                '<span>' + esc(country.name) + '</span></li>'
+            );
+        });
+
+    }
+
+
+    function setCountry(name) {
+
+        const country = countries.find(function (item) {
+            return item.name === name;
+        });
+
+        if (!country) {
+            return;
+        }
+
+        // Native select sync, aur change event fire taaki baaki code sun sake
+        select.val(country.name).trigger("change");
+
+        // Hidden input me country name
+        $("#countryname_select").val(country.name);
+
+        $("#flagBtnImg").replaceWith(
+            flagImg(country).replace('class="flag-img"', 'class="flag-img" id="flagBtnImg"')
+        );
+
+        $("#flagBtnLabel").text(country.name).removeClass("placeholder");
+
+        renderList();
+
+    }
+
+
+    function geoIpLookup(success) {
+
+        $.get("https://ipinfo.io", function () {}, "jsonp")
+            .always(function (resp) {
+
+                let countryCode = "";
+
+                if (resp && resp.country) {
+                    countryCode = String(resp.country).toUpperCase();
+                }
+
+                success(countryCode);
+
+            });
+
+    }
+
+});
+</script>
+
+</body>
+</html>
