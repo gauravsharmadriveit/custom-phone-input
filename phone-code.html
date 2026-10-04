@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone Number</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    :root {
+        --ink: #1b2430;
+        --muted: #6b7686;
+        --line: #d5dbe3;
+        --accent: #0f5c8c;
+        --accent-soft: #e6f0f7;
+        --ok: #1a7f4b;
+        --err: #c0392b;
+        --bg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 40px 16px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    }
+
+    .form-wrap {
+        max-width: 420px;
+        margin: 0 auto;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 28px;
+    }
+
+    .form-wrap label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    /* ---------- Phone widget ---------- */
+    .custom-phone {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+    .custom-phone:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .country-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        border: 0;
+        border-right: 1px solid var(--line);
+        border-radius: 8px 0 0 8px;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .country-button:hover,
+    .country-button.active { background: var(--accent-soft); }
+
+    .country-button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+    }
+
+    .country-flag {
+        width: 22px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+    }
+
+    .country-code { font-variant-numeric: tabular-nums; }
+
+    .country-arrow {
+        font-size: 11px;
+        color: var(--muted);
+        transition: transform .2s;
+    }
+
+    .country-button.active .country-arrow { transform: rotate(180deg); }
+
+    .phone-number {
+        flex: 1;
+        min-width: 0;
+        padding: 12px 14px;
+        border: 0;
+        border-radius: 0 8px 8px 0;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        outline: none;
+    }
+
+    .phone-number::placeholder { color: #9aa4b2; }
+
+    /* ---------- Dropdown ---------- */
+    .country-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(27, 36, 48, .12);
+        overflow: hidden;
+    }
+
+    .country-dropdown.show { display: block; }
+
+    .country-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .country-search i { color: var(--muted); }
+
+    .country-search input {
+        flex: 1;
+        border: 0;
+        outline: none;
+        font: inherit;
+        background: transparent;
+    }
+
+    .country-list {
+        max-height: 260px;
+        overflow-y: auto;
+    }
+
+    .country-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 12px;
+        border: 0;
+        background: transparent;
+        font: inherit;
+        color: var(--ink);
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .country-item:hover,
+    .country-item:focus-visible { background: var(--accent-soft); outline: none; }
+
+    .country-item.selected { background: var(--accent-soft); font-weight: 600; }
+
+    .item-flag img {
+        display: block;
+        width: 22px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+    }
+
+    .item-name { flex: 1; }
+
+    .item-code {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .no-country {
+        padding: 22px 12px;
+        text-align: center;
+        color: var(--muted);
+    }
+
+    .no-country i { display: block; font-size: 20px; margin-bottom: 6px; }
+
+    /* ---------- Messages ---------- */
+    .phone-error,
+    .phone-success {
+        display: none;
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .phone-error { color: var(--err); }
+    .phone-success { color: var(--ok); }
+    .phone-error.show,
+    .phone-success.show { display: block; }
+
+    /* ---------- Submit + result ---------- */
+    .submit-btn {
+        margin-top: 18px;
+        padding: 11px 22px;
+        border: 0;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover { background: #0c4a72; }
+    .submit-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    #resultBox {
+        display: none;
+        margin-top: 20px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--bg);
+    }
+
+    #resultBox p { margin: 4px 0; }
+
+    @media (max-width: 480px) {
+        .form-wrap { padding: 20px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ================= HTML ================= -->
+<form id="phoneForm" class="form-wrap" novalidate>
+
+    <label for="phoneNumber">Mobile number</label>
+
+    <!-- Sirf ye input rakhna hai, baaki widget JS se banega -->
+    <input type="tel" id="phoneNumber" class="phone-number"
+           placeholder="Enter mobile number" autocomplete="tel" inputmode="numeric">
+
+    <!-- Hidden fields (JS inhe fill karta hai) -->
+    <input type="hidden" id="countryName" name="country_name">
+    <input type="hidden" id="countryCode" name="country_code">
+    <input type="hidden" id="countryIso"  name="country_iso">
+    <input type="hidden" id="hiddenPhone" name="phone">
+    <input type="hidden" id="fullPhone"   name="full_phone">
+
+    <button type="submit" class="submit-btn">Submit</button>
+
+    <div id="resultBox">
+        <p>Country: <span id="resultCountry"></span></p>
+        <p>Code: <span id="resultCode"></span></p>
+        <p>Phone: <span id="resultPhone"></span></p>
+        <p>Full number: <span id="resultFull"></span></p>
+    </div>
+
+</form>
+
+<!-- ================= JS ================= -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(document).ready(function () {
+
+    /* ---------- Build widget markup from JS ---------- */
+    (function buildPhoneWidget() {
+
+        const input = $("#phoneNumber");
+
+        if (!input.length || input.closest(".custom-phone").length) {
+            return;
+        }
+
+        input.wrap('<div class="custom-phone"></div>');
+        const wrapper = input.parent();
+
+        wrapper.prepend(`
+            <button type="button" class="country-button" id="countryButton">
+                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg"
+                     class="country-flag" id="selectedFlag" alt="">
+                <span class="country-code" id="selectedCode"></span>
+                <i class="bi bi-chevron-down country-arrow"></i>
+            </button>
+        `);
+
+        wrapper.append(`
+            <div class="country-dropdown" id="countryDropdown">
+                <div class="country-search">
+                    <i class="bi bi-search"></i>
+                    <input type="text" id="countrySearch"
+                           placeholder="Search country or code..." autocomplete="off">
+                </div>
+                <div class="country-list" id="countryList"></div>
+            </div>
+        `);
+
+        wrapper.after(`
+            <div class="phone-error" id="phoneError"></div>
+            <div class="phone-success" id="phoneSuccess"></div>
+        `);
+
+    })();
+    /* ---------- End build ---------- */
+
+
+    let countries = [];
+    let selectedCountry = null;
+
+    $.getJSON("data/countries.json")
+        .done(function (data) {
+
+            countries = Array.isArray(data) ? data : [];
+
+            if (!countries.length) {
+                console.error("Country data is empty.");
+                return;
+            }
+
+            geoIpLookup(function (countryCode) {
+
+                countryCode = (countryCode || "").toUpperCase();
+
+                selectedCountry = countries.find(function (country) {
+                    return country.iso2 && country.iso2.toUpperCase() === countryCode;
+                });
+
+                if (!selectedCountry) {
+                    selectedCountry = countries.find(function (country) {
+                        return country.iso2 && country.iso2.toUpperCase() === "IN";
+                    }) || countries[0];
+                }
+
+                updateSelectedCountry();
+                renderCountries();
+
+            });
+
+        })
+        .fail(function (xhr, status, error) {
+            console.error("Unable to load countries.json:", error);
+        });
+
+
+    function geoIpLookup(success) {
+
+        $.get("https://ipinfo.io", function () {}, "jsonp")
+            .always(function (resp) {
+
+                let countryCode = "";
+
+                if (resp && resp.country) {
+                    countryCode = String(resp.country).toUpperCase();
+                }
+
+                success(countryCode);
+
+            });
+
+    }
+
+
+    function updateSelectedCountry() {
+
+        if (!selectedCountry) {
+            return;
+        }
+
+        $("#selectedFlag").attr({
+            src: selectedCountry.flag,
+            alt: selectedCountry.name
+        });
+
+        $("#selectedCode").text(selectedCountry.code);
+        $("#countryName").val(selectedCountry.name);
+        $("#countryCode").val(selectedCountry.code);
+        $("#countryIso").val(selectedCountry.iso2 || "");
+        $("#phoneNumber").attr("placeholder", "Enter mobile number");
+
+    }
+
+
+    function renderCountries(search) {
+
+        const list = $("#countryList");
+
+        list.empty();
+
+        const keyword = String(search || "").trim().toLowerCase();
+
+        const filteredCountries = countries.filter(function (country) {
+
+            const countryName = String(country.name || "").toLowerCase();
+            const countryCode = String(country.code || "").toLowerCase();
+            const isoCode = String(country.iso2 || "").toLowerCase();
+
+            return (
+                countryName.includes(keyword) ||
+                countryCode.includes(keyword) ||
+                isoCode.includes(keyword)
+            );
+
+        });
+
+
+        if (!filteredCountries.length) {
+
+            list.html(`
+                <div class="no-country">
+                    <i class="bi bi-search"></i>
+                    <div>No country found</div>
+                </div>
+            `);
+
+            return;
+        }
+
+
+        filteredCountries.forEach(function (country) {
+
+            const selectedClass =
+                selectedCountry &&
+                selectedCountry.iso2 &&
+                country.iso2 &&
+                selectedCountry.iso2.toUpperCase() === country.iso2.toUpperCase()
+                    ? "selected"
+                    : "";
+
+            list.append(`
+                <button
+                    type="button"
+                    class="country-item ${selectedClass}"
+                    data-country="${country.iso2}"
+                >
+                    <span class="item-flag">
+                        <img
+                            src="${country.flag}"
+                            alt="${country.name}"
+                            loading="lazy"
+                            onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg';"
+                        >
+                    </span>
+
+                    <span class="item-name">${country.name}</span>
+                    <span class="item-code">${country.code}</span>
+                </button>
+            `);
+
+        });
+
+    }
+
+
+    $("#countryButton").on("click", function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        $("#countryDropdown").toggleClass("show");
+
+        $("#countryButton").toggleClass(
+            "active",
+            $("#countryDropdown").hasClass("show")
+        );
+
+        if ($("#countryDropdown").hasClass("show")) {
+            $("#countrySearch").val("").focus();
+            renderCountries();
+        }
+
+    });
+
+
+    $(document).on("click", ".country-item", function (event) {
+
+        event.preventDefault();
+
+        const isoCode = String($(this).data("country") || "").toUpperCase();
+
+        const country = countries.find(function (item) {
+            return item.iso2 && item.iso2.toUpperCase() === isoCode;
+        });
+
+        if (!country) {
+            return;
+        }
+
+        selectedCountry = country;
+
+        updateSelectedCountry();
+
+        $("#countryDropdown").removeClass("show");
+        $("#countryButton").removeClass("active");
+
+        $("#phoneNumber").val("");
+        $("#phoneError").removeClass("show").text("");
+        $("#phoneSuccess").removeClass("show").text("");
+        $("#resultBox").hide();
+
+        renderCountries();
+
+    });
+
+
+    $("#countrySearch").on("input", function () {
+        renderCountries($(this).val());
+    });
+
+
+    $(document).on("click", function (event) {
+
+        if (!$(event.target).closest(".custom-phone").length) {
+            $("#countryDropdown").removeClass("show");
+            $("#countryButton").removeClass("active");
+        }
+
+    });
+
+
+    $("#phoneNumber").on("input", function () {
+
+        let value = $(this).val().replace(/\D/g, "");
+
+        if (selectedCountry && selectedCountry.max) {
+
+            const maxLength = parseInt(selectedCountry.max, 10);
+
+            if (!isNaN(maxLength) && value.length > maxLength) {
+                value = value.substring(0, maxLength);
+            }
+
+        }
+
+        $(this).val(value);
+
+        $("#phoneError").removeClass("show").text("");
+        $("#phoneSuccess").removeClass("show").text("");
+        $("#resultBox").hide();
+
+    });
+
+
+    $("#phoneForm").on("submit", function (event) {
+
+        event.preventDefault();
+
+        if (!selectedCountry) {
+            $("#phoneError").text("Please select a country.").addClass("show");
+            return;
+        }
+
+        const phone = $("#phoneNumber").val().trim();
+
+        if (!phone) {
+            $("#phoneError").text("Please enter your phone number.").addClass("show");
+            $("#phoneSuccess").removeClass("show");
+            $("#phoneNumber").focus();
+            return;
+        }
+
+        const phoneLength = phone.length;
+        const minLength = parseInt(selectedCountry.min, 10);
+        const maxLength = parseInt(selectedCountry.max, 10);
+
+        if (!isNaN(minLength) && phoneLength < minLength) {
+            $("#phoneError")
+                .text("Please enter a valid " + selectedCountry.name + " phone number.")
+                .addClass("show");
+            $("#phoneSuccess").removeClass("show");
+            return;
+        }
+
+        if (!isNaN(maxLength) && phoneLength > maxLength) {
+            $("#phoneError")
+                .text("Please enter a valid " + selectedCountry.name + " phone number.")
+                .addClass("show");
+            $("#phoneSuccess").removeClass("show");
+            return;
+        }
+
+        const fullPhone = selectedCountry.code + phone;
+
+        $("#hiddenPhone").val(phone);
+        $("#fullPhone").val(fullPhone);
+
+        $("#phoneError").removeClass("show").text("");
+        $("#phoneSuccess").text("Phone number is valid.").addClass("show");
+
+        $("#resultCountry").text(selectedCountry.name);
+        $("#resultCode").text(selectedCountry.code);
+        $("#resultPhone").text(phone);
+        $("#resultFull").text(fullPhone);
+
+        $("#resultBox").stop(true, true).slideDown();
+
+        console.log({
+            country: selectedCountry.name,
+            iso2: selectedCountry.iso2,
+            country_code: selectedCountry.code,
+            phone: phone,
+            full_phone: fullPhone
+        });
+
+    });
+
+});
+</script>
+
+</body>
+</html>
