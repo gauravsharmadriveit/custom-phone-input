@@ -3,91 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Country</title>
+<title>Country Select Plugin</title>
 
 <style>
-    :root {
-        --ink: #1b2430;
-        --muted: #6b7686;
-        --line: #d5dbe3;
-        --accent: #0f5c8c;
-        --accent-soft: #e6f0f7;
-    }
-
+    /* ================= Demo page ================= */
     body {
         margin: 0;
         padding: 40px 16px;
         background: #f6f8fa;
         font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-        color: var(--ink);
+        color: #1b2430;
     }
 
-    .form-wrap {
+    .demo-form {
         max-width: 420px;
         margin: 0 auto;
         padding: 28px;
         background: #fff;
-        border: 1px solid var(--line);
+        border: 1px solid #d5dbe3;
         border-radius: 10px;
     }
 
-    .form-wrap label {
+    .demo-form label {
         display: block;
-        margin-bottom: 8px;
+        margin: 0 0 8px;
         font-weight: 600;
     }
 
-    /* Native select (JS ke baad hide ho jata hai) */
-    .country-select {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        font: inherit;
-    }
+    .demo-form .field + .field { margin-top: 20px; }
 
-    /* ---------- Custom flag dropdown ---------- */
-    .flag-select {
-        position: relative;
-    }
+    /* ================= Plugin CSS (cs- prefix, koi clash nahi) ================= */
+    .cs-wrap { position: relative; }
 
-    .flag-select-btn {
+    .cs-btn {
         display: flex;
         align-items: center;
         gap: 10px;
         width: 100%;
         padding: 12px 14px;
-        border: 1px solid var(--line);
+        border: 1px solid #d5dbe3;
         border-radius: 8px;
         background: #fff;
-        color: var(--ink);
+        color: #1b2430;
         font: inherit;
         text-align: left;
         cursor: pointer;
     }
 
-    .flag-select-btn:focus-visible,
-    .flag-select.open .flag-select-btn {
+    .cs-btn:focus-visible,
+    .cs-wrap.open .cs-btn {
         outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-soft);
+        border-color: #0f5c8c;
+        box-shadow: 0 0 0 3px #e6f0f7;
     }
 
-    .flag-select-btn .label { flex: 1; }
-    .flag-select-btn .label.placeholder { color: #9aa4b2; }
+    .cs-label { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cs-label.cs-placeholder { color: #9aa4b2; }
 
-    .flag-select-btn .arrow {
+    .cs-arrow {
         width: 8px;
         height: 8px;
-        border-right: 2px solid var(--muted);
-        border-bottom: 2px solid var(--muted);
+        border-right: 2px solid #6b7686;
+        border-bottom: 2px solid #6b7686;
         transform: rotate(45deg) translateY(-2px);
         transition: transform .2s;
     }
 
-    .flag-select.open .arrow { transform: rotate(225deg); }
+    .cs-wrap.open .cs-arrow { transform: rotate(225deg); }
 
-    .flag-img {
+    .cs-flag {
         width: 22px;
         height: 16px;
         object-fit: cover;
@@ -95,40 +79,42 @@
         flex-shrink: 0;
     }
 
-    .flag-menu {
+    .cs-menu {
         display: none;
         position: absolute;
         top: calc(100% + 6px);
         left: 0;
         right: 0;
-        z-index: 50;
+        z-index: 1000;
         background: #fff;
-        border: 1px solid var(--line);
+        border: 1px solid #d5dbe3;
         border-radius: 8px;
         box-shadow: 0 8px 24px rgba(27, 36, 48, .12);
         overflow: hidden;
     }
 
-    .flag-select.open .flag-menu { display: block; }
+    .cs-wrap.open .cs-menu { display: block; }
 
-    .flag-search {
+    .cs-search {
+        box-sizing: border-box;
         width: 100%;
         padding: 11px 14px;
         border: 0;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 1px solid #d5dbe3;
         font: inherit;
         outline: none;
     }
 
-    .flag-list {
+    .cs-list {
+        position: relative;
         max-height: 260px;
-        overflow-y: auto;
         margin: 0;
         padding: 0;
+        overflow-y: auto;
         list-style: none;
     }
 
-    .flag-option {
+    .cs-option {
         display: flex;
         align-items: center;
         gap: 10px;
@@ -136,228 +122,375 @@
         cursor: pointer;
     }
 
-    .flag-option:hover { background: var(--accent-soft); }
-    .flag-option.selected { background: var(--accent-soft); font-weight: 600; }
+    .cs-option:hover { background: #e6f0f7; }
+    .cs-option.selected { background: #e6f0f7; font-weight: 600; }
 
-    .flag-empty {
+    .cs-empty {
         padding: 18px 14px;
         text-align: center;
-        color: var(--muted);
+        color: #6b7686;
     }
 </style>
 </head>
 <body>
 
-<!-- ================= HTML ================= -->
-<form class="form-wrap">
-    <label for="countrySelect">Country</label>
+<!-- ================= Demo HTML ================= -->
+<form class="demo-form">
 
-    <!-- Bas ye rakhna hai. Options aur flag dropdown JS banayega -->
-    <select id="countrySelect" name="country" class="country-select">
-        <option value="">Select country</option>
-    </select>
+    <!-- 1) ID se -->
+    <div class="field">
+        <label for="countrybyid">Country (ID se)</label>
+        <select id="countrybyid" name="country"></select>
+        <input type="hidden" id="countryname_select" name="country_name">
+    </div>
 
-    <!-- JS isme selected country ka name bharta hai -->
-    <input type="hidden" id="countryname_select" name="country_name">
+    <!-- 2) Class se, options data-attributes se -->
+    <div class="field">
+        <label>Billing country (class se)</label>
+        <select class="billing-country" name="billing_country"
+                data-name-input="#billing_country_name"
+                data-value-field="iso2"
+                data-auto-detect="true"
+                data-placeholder="Choose billing country"></select>
+        <input type="hidden" id="billing_country_name" name="billing_country_name">
+    </div>
+
 </form>
 
 <!-- ================= JS ================= -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-$(document).ready(function () {
+/*!
+ * jQuery countrySelect plugin
+ * Kisi bhi id / class / selector par chalta hai.
+ *
+ *   $("#myId").countrySelect();
+ *   $(".my-class").countrySelect({ nameInput: "#country_name" });
+ *   $("#myId").countrySelect("set", "IN");   // code se country set karo
+ *
+ * Ya bina JS likhe: <select data-country-select> (neeche auto-init hai)
+ */
+(function ($) {
+    "use strict";
 
     const FALLBACK_FLAG = "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg";
 
-    const select = $("#countrySelect");
-    let countries = [];
+    const cache = {};      // json url -> promise (ek hi baar load hoga)
+    let geoPromise = null; // IP lookup bhi ek hi baar
+    let uid = 0;
 
     function esc(text) {
         return $("<div>").text(text == null ? "" : text).html();
     }
 
-    function flagImg(country) {
-        const src = country && country.flag ? country.flag : FALLBACK_FLAG;
-        return '<img class="flag-img" src="' + esc(src) + '" alt="" loading="lazy" ' +
-               'onerror="this.onerror=null;this.src=\'' + FALLBACK_FLAG + '\';">';
+    function loadCountries(url) {
+        if (!cache[url]) {
+            cache[url] = $.getJSON(url).then(function (data) {
+                const list = Array.isArray(data) ? data.slice() : [];
+                list.sort(function (a, b) {
+                    return String(a.name || "").localeCompare(String(b.name || ""));
+                });
+                return list;
+            });
+        }
+        return cache[url];
     }
 
-    $.getJSON("data/countries.json")
-        .done(function (data) {
+    function loadGeo() {
+        if (!geoPromise) {
+            const d = $.Deferred();
+            $.get("https://ipinfo.io", function () {}, "jsonp").always(function (resp) {
+                d.resolve(resp && resp.country ? String(resp.country).toUpperCase() : "");
+            });
+            geoPromise = d.promise();
+        }
+        return geoPromise;
+    }
 
-            countries = Array.isArray(data) ? data : [];
+    function init($el, opts) {
 
-            if (!countries.length) {
-                console.error("Country data is empty.");
+        // Agar div/container pass hua to uske andar select bana do
+        let $select = $el;
+        if (!$el.is("select")) {
+            $select = $("<select></select>").attr("name", opts.name).appendTo($el);
+        }
+
+        if ($select.data("csInit")) {
+            return;
+        }
+        $select.data("csInit", true);
+
+        // data-attributes options ko override karte hain (per-element settings)
+        const ds = $select.data();
+        const cfg = $.extend({}, opts, {
+            jsonUrl: ds.json || opts.jsonUrl,
+            nameInput: ds.nameInput || opts.nameInput,
+            valueField: ds.valueField || opts.valueField,
+            placeholder: ds.placeholder || opts.placeholder,
+            defaultIso: ds.defaultIso || opts.defaultIso,
+            selected: ds.selected || opts.selected,
+            autoDetect: ds.autoDetect !== undefined ? ds.autoDetect : opts.autoDetect
+        });
+
+        const id = "cs" + (++uid);
+        let countries = [];
+        let current = null;
+
+        function valueOf(country) {
+            return country[cfg.valueField] != null ? country[cfg.valueField] : country.name;
+        }
+
+        // Placeholder option
+        if (!$select.find('option[value=""]').length) {
+            $select.prepend($("<option>", { value: "", text: cfg.placeholder }));
+        }
+
+        const $wrap = $(
+            '<div class="cs-wrap">' +
+                '<button type="button" class="cs-btn" aria-haspopup="listbox" aria-expanded="false">' +
+                    '<img class="cs-flag" src="' + FALLBACK_FLAG + '" alt="">' +
+                    '<span class="cs-label cs-placeholder">' + esc(cfg.placeholder) + '</span>' +
+                    '<span class="cs-arrow"></span>' +
+                '</button>' +
+                '<div class="cs-menu">' +
+                    '<input type="text" class="cs-search" placeholder="' + esc(cfg.searchPlaceholder) + '" autocomplete="off">' +
+                    '<ul class="cs-list" role="listbox"></ul>' +
+                '</div>' +
+            '</div>'
+        );
+
+        $select.hide().after($wrap);
+
+        const $btn = $wrap.find(".cs-btn");
+        const $flag = $wrap.find(".cs-flag");
+        const $label = $wrap.find(".cs-label");
+        const $search = $wrap.find(".cs-search");
+        const $list = $wrap.find(".cs-list");
+
+        $flag.on("error", function () {
+            if (this.src !== FALLBACK_FLAG) {
+                this.src = FALLBACK_FLAG;
+            }
+        });
+
+        function render(search) {
+
+            const keyword = String(search || "").trim().toLowerCase();
+
+            $list.empty();
+
+            let shown = 0;
+
+            countries.forEach(function (country, index) {
+
+                if (
+                    keyword &&
+                    String(country.name || "").toLowerCase().indexOf(keyword) === -1 &&
+                    String(country.iso2 || "").toLowerCase().indexOf(keyword) === -1
+                ) {
+                    return;
+                }
+
+                shown++;
+
+                $list.append(
+                    '<li class="cs-option' + (country === current ? " selected" : "") +
+                    '" role="option" data-index="' + index + '">' +
+                        '<img class="cs-flag" src="' + esc(country.flag || FALLBACK_FLAG) +
+                        '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + FALLBACK_FLAG + '\';">' +
+                        '<span>' + esc(country.name) + '</span>' +
+                    '</li>'
+                );
+
+            });
+
+            if (!shown) {
+                $list.html('<li class="cs-empty">No country found</li>');
+            }
+
+        }
+
+        function setCountry(country) {
+
+            if (!country) {
                 return;
             }
 
-            countries.sort(function (a, b) {
-                return String(a.name || "").localeCompare(String(b.name || ""));
-            });
+            current = country;
 
-            // Native select ke options (form value yahin se jayegi)
-            countries.forEach(function (country) {
-                select.append(
-                    $("<option>", {
-                        value: country.name,
-                        text: country.name,
-                        "data-iso": country.iso2 || "",
-                        "data-code": country.code || ""
-                    })
+            $select.val(String(valueOf(country))).trigger("change");
+
+            $flag.attr("src", country.flag || FALLBACK_FLAG);
+            $label.text(country.name).removeClass("cs-placeholder");
+
+            if (cfg.nameInput) {
+                $(cfg.nameInput).val(country.name);
+            }
+
+            if (typeof cfg.onChange === "function") {
+                cfg.onChange.call($select[0], country);
+            }
+
+        }
+
+        function findCountry(key) {
+            const k = String(key || "").toLowerCase();
+            return countries.find(function (c) {
+                return (
+                    String(c.iso2 || "").toLowerCase() === k ||
+                    String(c.name || "").toLowerCase() === k
                 );
             });
+        }
 
-            buildFlagDropdown();
+        function open() {
+            $(".cs-wrap.open").not($wrap).removeClass("open");
+            $wrap.addClass("open");
+            $btn.attr("aria-expanded", "true");
+            $search.val("").trigger("focus");
+            render();
 
-            geoIpLookup(function (countryCode) {
+            const $sel = $list.find(".selected");
+            if ($sel.length) {
+                $list.scrollTop($sel.position().top - 40);
+            }
+        }
 
-                const code = (countryCode || "IN").toUpperCase();
+        function close() {
+            $wrap.removeClass("open");
+            $btn.attr("aria-expanded", "false");
+        }
 
-                const match = countries.find(function (country) {
-                    return country.iso2 && country.iso2.toUpperCase() === code;
+        $btn.on("click", function (event) {
+            event.stopPropagation();
+            $wrap.hasClass("open") ? close() : open();
+        });
+
+        $search.on("input", function () {
+            render($(this).val());
+        });
+
+        $list.on("click", ".cs-option", function () {
+            setCountry(countries[$(this).data("index")]);
+            close();
+            $btn.trigger("focus");
+        });
+
+        $wrap.on("keydown", function (event) {
+            if (event.key === "Escape") {
+                close();
+                $btn.trigger("focus");
+            }
+        });
+
+        $(document).on("click." + id, function (event) {
+            if (!$(event.target).closest($wrap).length) {
+                close();
+            }
+        });
+
+        // Public API: $("#x").countrySelect("set", "IN")
+        $select.data("csApi", {
+            set: function (key) {
+                setCountry(findCountry(key));
+            }
+        });
+
+        loadCountries(cfg.jsonUrl)
+            .done(function (list) {
+
+                countries = list;
+
+                if (!countries.length) {
+                    console.error("Country data is empty.");
+                    return;
+                }
+
+                countries.forEach(function (country) {
+                    $select.append(
+                        $("<option>", {
+                            value: String(valueOf(country)),
+                            text: country.name,
+                            "data-iso": country.iso2 || "",
+                            "data-code": country.code || ""
+                        })
+                    );
                 });
 
-                if (match) {
-                    setCountry(match.name);
+                render();
+
+                if (cfg.selected) {
+                    setCountry(findCountry(cfg.selected));
+                } else if (cfg.autoDetect) {
+                    loadGeo().done(function (code) {
+                        setCountry(findCountry(code) || findCountry(cfg.defaultIso));
+                    });
                 }
 
-            });
-
-        })
-        .fail(function (xhr, status, error) {
-            console.error("Unable to load countries.json:", error);
-        });
-
-
-    function buildFlagDropdown() {
-
-        // Native select hide, custom UI uske upar
-        select.hide().after(`
-            <div class="flag-select" id="flagSelect">
-                <button type="button" class="flag-select-btn" id="flagBtn" aria-haspopup="listbox">
-                    <img class="flag-img" id="flagBtnImg" src="${FALLBACK_FLAG}" alt="">
-                    <span class="label placeholder" id="flagBtnLabel">Select country</span>
-                    <span class="arrow"></span>
-                </button>
-                <div class="flag-menu">
-                    <input type="text" class="flag-search" id="flagSearch"
-                           placeholder="Search country..." autocomplete="off">
-                    <ul class="flag-list" id="flagList" role="listbox"></ul>
-                </div>
-            </div>
-        `);
-
-        renderList();
-
-        $("#flagBtn").on("click", function (event) {
-            event.stopPropagation();
-            $("#flagSelect").toggleClass("open");
-
-            if ($("#flagSelect").hasClass("open")) {
-                $("#flagSearch").val("").focus();
-                renderList();
-            }
-        });
-
-        $("#flagSearch").on("input", function () {
-            renderList($(this).val());
-        });
-
-        $("#flagList").on("click", ".flag-option", function () {
-            setCountry($(this).data("name"));
-            $("#flagSelect").removeClass("open");
-        });
-
-        $(document).on("click", function (event) {
-            if (!$(event.target).closest("#flagSelect").length) {
-                $("#flagSelect").removeClass("open");
-            }
-        });
-
-        $(document).on("keydown", function (event) {
-            if (event.key === "Escape") {
-                $("#flagSelect").removeClass("open");
-            }
-        });
-
-    }
-
-
-    function renderList(search) {
-
-        const list = $("#flagList");
-        const keyword = String(search || "").trim().toLowerCase();
-        const current = select.val();
-
-        list.empty();
-
-        const filtered = countries.filter(function (country) {
-            return (
-                String(country.name || "").toLowerCase().includes(keyword) ||
-                String(country.iso2 || "").toLowerCase().includes(keyword)
-            );
-        });
-
-        if (!filtered.length) {
-            list.html('<li class="flag-empty">No country found</li>');
-            return;
-        }
-
-        filtered.forEach(function (country) {
-            list.append(
-                '<li class="flag-option' + (country.name === current ? " selected" : "") +
-                '" role="option" data-name="' + esc(country.name) + '">' +
-                flagImg(country) +
-                '<span>' + esc(country.name) + '</span></li>'
-            );
-        });
-
-    }
-
-
-    function setCountry(name) {
-
-        const country = countries.find(function (item) {
-            return item.name === name;
-        });
-
-        if (!country) {
-            return;
-        }
-
-        // Native select sync, aur change event fire taaki baaki code sun sake
-        select.val(country.name).trigger("change");
-
-        // Hidden input me country name
-        $("#countryname_select").val(country.name);
-
-        $("#flagBtnImg").replaceWith(
-            flagImg(country).replace('class="flag-img"', 'class="flag-img" id="flagBtnImg"')
-        );
-
-        $("#flagBtnLabel").text(country.name).removeClass("placeholder");
-
-        renderList();
-
-    }
-
-
-    function geoIpLookup(success) {
-
-        $.get("https://ipinfo.io", function () {}, "jsonp")
-            .always(function (resp) {
-
-                let countryCode = "";
-
-                if (resp && resp.country) {
-                    countryCode = String(resp.country).toUpperCase();
-                }
-
-                success(countryCode);
-
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Unable to load " + cfg.jsonUrl + ":", error);
             });
 
     }
+
+    $.fn.countrySelect = function (options) {
+
+        // Method call: .countrySelect("set", "IN")
+        if (typeof options === "string") {
+            const args = Array.prototype.slice.call(arguments, 1);
+            return this.each(function () {
+                const api = $(this).data("csApi");
+                if (api && typeof api[options] === "function") {
+                    api[options].apply(api, args);
+                }
+            });
+        }
+
+        const opts = $.extend({}, $.fn.countrySelect.defaults, options);
+
+        return this.each(function () {
+            init($(this), opts);
+        });
+
+    };
+
+    $.fn.countrySelect.defaults = {
+        jsonUrl: "data/countries.json",
+        nameInput: null,          // hidden input ka selector, e.g. "#countryname_select"
+        valueField: "name",       // select ki value: "name" | "iso2" | "code"
+        placeholder: "Select country",
+        searchPlaceholder: "Search country...",
+        autoDetect: true,         // IP se country select
+        defaultIso: "IN",         // detect fail ho to
+        selected: null,           // ya fixed country, e.g. "US"
+        name: "country",          // sirf tab, jab container (div) pass karo
+        onChange: null            // function (country) {}
+    };
+
+    // Auto-init: <select data-country-select>
+    $(function () {
+        $("[data-country-select]").countrySelect();
+    });
+
+})(jQuery);
+</script>
+
+<!-- ================= Usage (ye aap apne page me likhoge) ================= -->
+<script>
+$(document).ready(function () {
+
+    // ID se
+    $("#countrybyid").countrySelect({
+        nameInput: "#countryname_select"
+    });
+
+    // Class se (options select ke data-attributes me hain)
+    $(".billing-country").countrySelect(
+        {
+             nameInput: "#countryname_select"
+        }
+    );
 
 });
 </script>
