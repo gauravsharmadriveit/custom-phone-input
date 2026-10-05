@@ -3,218 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Phone Number</title>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<title>Phone Input Plugin</title>
 
 <style>
-    :root {
-        --ink: #1b2430;
-        --muted: #6b7686;
-        --line: #d5dbe3;
-        --accent: #0f5c8c;
-        --accent-soft: #e6f0f7;
-        --ok: #1a7f4b;
-        --err: #c0392b;
-        --bg: #f6f8fa;
-    }
-
+    /* ================= Demo page ================= */
     * { box-sizing: border-box; }
 
     body {
         margin: 0;
         padding: 40px 16px;
-        background: var(--bg);
-        color: var(--ink);
+        background: #f6f8fa;
+        color: #1b2430;
         font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
     }
 
-    .form-wrap {
+    .demo-form {
         max-width: 420px;
         margin: 0 auto;
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 10px;
         padding: 28px;
-    }
-
-    .form-wrap label {
-        display: block;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    /* ---------- Phone widget ---------- */
-    .custom-phone {
-        position: relative;
-        display: flex;
-        align-items: stretch;
-        border: 1px solid var(--line);
-        border-radius: 8px;
         background: #fff;
-        transition: border-color .15s, box-shadow .15s;
+        border: 1px solid #d5dbe3;
+        border-radius: 10px;
     }
 
-    .custom-phone:focus-within {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px var(--accent-soft);
-    }
+    .demo-form label { display: block; margin-bottom: 8px; font-weight: 600; }
+    .demo-form .field + .field { margin-top: 20px; }
 
-    .country-button {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 0 12px;
-        border: 0;
-        border-right: 1px solid var(--line);
-        border-radius: 8px 0 0 8px;
-        background: transparent;
-        color: var(--ink);
-        font: inherit;
-        cursor: pointer;
-    }
-
-    .country-button:hover,
-    .country-button.active { background: var(--accent-soft); }
-
-    .country-button:focus-visible {
-        outline: 2px solid var(--accent);
-        outline-offset: -2px;
-    }
-
-    .country-flag {
-        width: 22px;
-        height: 16px;
-        object-fit: cover;
-        border-radius: 2px;
-    }
-
-    .country-code { font-variant-numeric: tabular-nums; }
-
-    .country-arrow {
-        font-size: 11px;
-        color: var(--muted);
-        transition: transform .2s;
-    }
-
-    .country-button.active .country-arrow { transform: rotate(180deg); }
-
-    .phone-number {
-        flex: 1;
-        min-width: 0;
-        padding: 12px 14px;
-        border: 0;
-        border-radius: 0 8px 8px 0;
-        background: transparent;
-        color: var(--ink);
-        font: inherit;
-        outline: none;
-    }
-
-    .phone-number::placeholder { color: #9aa4b2; }
-
-    /* ---------- Dropdown ---------- */
-    .country-dropdown {
-        display: none;
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        right: 0;
-        z-index: 50;
-        background: #fff;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(27, 36, 48, .12);
-        overflow: hidden;
-    }
-
-    .country-dropdown.show { display: block; }
-
-    .country-search {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 10px 12px;
-        border-bottom: 1px solid var(--line);
-    }
-
-    .country-search i { color: var(--muted); }
-
-    .country-search input {
-        flex: 1;
-        border: 0;
-        outline: none;
-        font: inherit;
-        background: transparent;
-    }
-
-    .country-list {
-        max-height: 260px;
-        overflow-y: auto;
-    }
-
-    .country-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-        padding: 9px 12px;
-        border: 0;
-        background: transparent;
-        font: inherit;
-        color: var(--ink);
-        text-align: left;
-        cursor: pointer;
-    }
-
-    .country-item:hover,
-    .country-item:focus-visible { background: var(--accent-soft); outline: none; }
-
-    .country-item.selected { background: var(--accent-soft); font-weight: 600; }
-
-    .item-flag img {
-        display: block;
-        width: 22px;
-        height: 16px;
-        object-fit: cover;
-        border-radius: 2px;
-    }
-
-    .item-name { flex: 1; }
-
-    .item-code {
-        color: var(--muted);
-        font-variant-numeric: tabular-nums;
-    }
-
-    .no-country {
-        padding: 22px 12px;
-        text-align: center;
-        color: var(--muted);
-    }
-
-    .no-country i { display: block; font-size: 20px; margin-bottom: 6px; }
-
-    /* ---------- Messages ---------- */
-    .phone-error,
-    .phone-success {
-        display: none;
-        margin-top: 8px;
-        font-size: 14px;
-    }
-
-    .phone-error { color: var(--err); }
-    .phone-success { color: var(--ok); }
-    .phone-error.show,
-    .phone-success.show { display: block; }
-
-    /* ---------- Submit + result ---------- */
     .submit-btn {
-        margin-top: 18px;
+        margin-top: 20px;
         padding: 11px 22px;
         border: 0;
         border-radius: 8px;
-        background: var(--accent);
+        background: #0f5c8c;
         color: #fff;
         font: inherit;
         font-weight: 600;
@@ -222,41 +42,191 @@
     }
 
     .submit-btn:hover { background: #0c4a72; }
-    .submit-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     #resultBox {
         display: none;
         margin-top: 20px;
         padding: 14px 16px;
-        border: 1px solid var(--line);
+        border: 1px solid #d5dbe3;
         border-radius: 8px;
-        background: var(--bg);
+        background: #f6f8fa;
     }
 
     #resultBox p { margin: 4px 0; }
 
-    @media (max-width: 480px) {
-        .form-wrap { padding: 20px; }
+    /* ================= Plugin CSS (pi- prefix, koi clash nahi) ================= */
+    .pi-wrap {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        border: 1px solid #d5dbe3;
+        border-radius: 8px;
+        background: #fff;
+        transition: border-color .15s, box-shadow .15s;
     }
+
+    .pi-wrap:focus-within {
+        border-color: #0f5c8c;
+        box-shadow: 0 0 0 3px #e6f0f7;
+    }
+
+    .pi-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0 12px;
+        border: 0;
+        border-right: 1px solid #d5dbe3;
+        border-radius: 8px 0 0 8px;
+        background: transparent;
+        color: #1b2430;
+        font: inherit;
+        cursor: pointer;
+    }
+
+    .pi-btn:hover,
+    .pi-btn.active { background: #e6f0f7; }
+
+    .pi-btn:focus-visible { outline: 2px solid #0f5c8c; outline-offset: -2px; }
+
+    .pi-flag {
+        width: 22px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+        flex-shrink: 0;
+    }
+
+    .pi-code { font-variant-numeric: tabular-nums; }
+
+    .pi-arrow {
+        width: 7px;
+        height: 7px;
+        border-right: 2px solid #6b7686;
+        border-bottom: 2px solid #6b7686;
+        transform: rotate(45deg) translateY(-2px);
+        transition: transform .2s;
+    }
+
+    .pi-btn.active .pi-arrow { transform: rotate(225deg); }
+
+    /* Plugin ka input: isi class se style hota hai, aapki class bhi chalti rahegi */
+    .pi-input {
+        flex: 1;
+        min-width: 0;
+        width: auto;
+        margin: 0;
+        padding: 12px 14px;
+        border: 0;
+        border-radius: 0 8px 8px 0;
+        background: transparent;
+        box-shadow: none;
+        color: #1b2430;
+        font: inherit;
+        outline: none;
+    }
+
+    .pi-input::placeholder { color: #9aa4b2; }
+
+    .pi-dropdown {
+        display: none;
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #d5dbe3;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px rgba(27, 36, 48, .12);
+        overflow: hidden;
+    }
+
+    .pi-dropdown.show { display: block; }
+
+    .pi-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-bottom: 1px solid #d5dbe3;
+    }
+
+    .pi-search svg { flex-shrink: 0; color: #6b7686; }
+
+    .pi-search input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        font: inherit;
+    }
+
+    .pi-list { max-height: 260px; overflow-y: auto; }
+
+    .pi-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 9px 12px;
+        border: 0;
+        background: transparent;
+        color: #1b2430;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .pi-item:hover,
+    .pi-item:focus-visible { background: #e6f0f7; outline: none; }
+    .pi-item.selected { background: #e6f0f7; font-weight: 600; }
+
+    .pi-item-name { flex: 1; }
+    .pi-item-code { color: #6b7686; font-variant-numeric: tabular-nums; }
+
+    .pi-none { padding: 22px 12px; text-align: center; color: #6b7686; }
+
+    .pi-error,
+    .pi-success { display: none; margin-top: 8px; font-size: 14px; }
+
+    .pi-error { color: #c0392b; }
+    .pi-success { color: #1a7f4b; }
+    .pi-error.show,
+    .pi-success.show { display: block; }
 </style>
 </head>
 <body>
 
-<!-- ================= HTML ================= -->
-<form id="phoneForm" class="form-wrap" novalidate>
+<!-- ================= Demo HTML ================= -->
+<form id="phoneForm" class="demo-form" novalidate>
 
-    <label for="phoneNumber">Mobile number</label>
+    <!-- 1) ID se: options JS me di gayi hain -->
+    <div class="field">
+        <label for="phoneNumber">Mobile number (ID se)</label>
+        <input type="tel" id="phoneNumber" placeholder="Enter mobile number">
 
-    <!-- Sirf ye input rakhna hai, baaki widget JS se banega -->
-    <input type="tel" id="phoneNumber" class="phone-number"
-           placeholder="Enter mobile number" autocomplete="tel" inputmode="numeric">
+        <input type="hidden" id="countryName" name="country_name">
+        <input type="hidden" id="countryCode" name="country_code">
+        <input type="hidden" id="countryIso"  name="country_iso">
+        <input type="hidden" id="hiddenPhone" name="phone">
+        <input type="hidden" id="fullPhone"   name="full_phone">
+    </div>
 
-    <!-- Hidden fields (JS inhe fill karta hai) -->
-    <input type="hidden" id="countryName" name="country_name">
-    <input type="hidden" id="countryCode" name="country_code">
-    <input type="hidden" id="countryIso"  name="country_iso">
-    <input type="hidden" id="hiddenPhone" name="phone">
-    <input type="hidden" id="fullPhone"   name="full_phone">
+    <!-- 2) Class se: options data-attributes me hain, koi JS option nahi -->
+    <div class="field">
+        <label>Alternate number (class se)</label>
+        <input type="tel" class="alt-phone" placeholder="Alternate mobile number"
+               data-field-country-code="#altCode"
+               data-field-phone="#altPhone"
+               data-field-full-phone="#altFull"
+               data-auto-detect="false">
+
+        <input type="hidden" id="altCode"  name="alt_country_code">
+        <input type="hidden" id="altPhone" name="alt_phone">
+        <input type="hidden" id="altFull"  name="alt_full_phone">
+    </div>
 
     <button type="submit" class="submit-btn">Submit</button>
 
@@ -272,347 +242,501 @@
 <!-- ================= JS ================= -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-$(document).ready(function () {
+/*!
+ * jQuery phoneInput plugin
+ * Kisi bhi id / class / selector par chalta hai.
+ *
+ *   $("#myPhone").phoneInput();
+ *   $(".phone-field").phoneInput({ fields: { fullPhone: "#full" } });
+ *   $("#myPhone").phoneInput("validate");     // true / false
+ *   $("#myPhone").phoneInput("val");          // { country, iso2, country_code, phone, full_phone }
+ *   $("#myPhone").phoneInput("set", "US");    // country set karo
+ *
+ * Ya bina JS likhe: <input type="tel" data-phone-input> (neeche auto-init hai)
+ */
+(function ($) {
+    "use strict";
 
-    /* ---------- Build widget markup from JS ---------- */
-    (function buildPhoneWidget() {
+    const FALLBACK_FLAG = "https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg";
 
-        const input = $("#phoneNumber");
+    const SEARCH_ICON =
+        '<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">' +
+        '<path d="M11.74 10.33a6 6 0 1 0-1.41 1.41l3.5 3.5a1 1 0 0 0 1.41-1.41l-3.5-3.5zM6.5 11a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z"/></svg>';
 
-        if (!input.length || input.closest(".custom-phone").length) {
-            return;
+    const cache = {};       // json url -> promise (ek hi baar load hoga)
+    let geoPromise = null;  // IP lookup bhi ek hi baar
+    let uid = 0;
+
+    function esc(text) {
+        return $("<div>").text(text == null ? "" : text).html();
+    }
+
+    function loadCountries(url) {
+        if (!cache[url]) {
+            cache[url] = $.getJSON(url).then(function (data) {
+                return Array.isArray(data) ? data : [];
+            });
+        }
+        return cache[url];
+    }
+
+    function loadGeo() {
+        if (!geoPromise) {
+            const d = $.Deferred();
+            $.get("https://ipinfo.io", function () {}, "jsonp").always(function (resp) {
+                d.resolve(resp && resp.country ? String(resp.country).toUpperCase() : "");
+            });
+            geoPromise = d.promise();
+        }
+        return geoPromise;
+    }
+
+    function setField(selector, value) {
+        if (selector) {
+            $(selector).val(value);
+        }
+    }
+
+    function init($el, opts) {
+
+        // Agar div/container pass hua to uske andar input bana do
+        let $input = $el;
+        if (!$el.is("input")) {
+            $input = $('<input type="tel">').attr("name", opts.name).appendTo($el);
         }
 
-        input.wrap('<div class="custom-phone"></div>');
-        const wrapper = input.parent();
+        if ($input.data("piInit")) {
+            return;
+        }
+        $input.data("piInit", true);
 
-        wrapper.prepend(`
-            <button type="button" class="country-button" id="countryButton">
-                <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg"
-                     class="country-flag" id="selectedFlag" alt="">
-                <span class="country-code" id="selectedCode"></span>
-                <i class="bi bi-chevron-down country-arrow"></i>
-            </button>
-        `);
+        // data-attributes options ko override karte hain (per-element settings)
+        const ds = $input.data();
 
-        wrapper.append(`
-            <div class="country-dropdown" id="countryDropdown">
-                <div class="country-search">
-                    <i class="bi bi-search"></i>
-                    <input type="text" id="countrySearch"
-                           placeholder="Search country or code..." autocomplete="off">
-                </div>
-                <div class="country-list" id="countryList"></div>
-            </div>
-        `);
+        const fields = $.extend({}, opts.fields, {
+            countryName: ds.fieldCountryName,
+            countryCode: ds.fieldCountryCode,
+            countryIso: ds.fieldCountryIso,
+            phone: ds.fieldPhone,
+            fullPhone: ds.fieldFullPhone
+        });
 
-        wrapper.after(`
-            <div class="phone-error" id="phoneError"></div>
-            <div class="phone-success" id="phoneSuccess"></div>
-        `);
+        const cfg = $.extend({}, opts, {
+            jsonUrl: ds.json || opts.jsonUrl,
+            form: ds.form || opts.form,
+            defaultIso: ds.defaultIso || opts.defaultIso,
+            selected: ds.selected || opts.selected,
+            autoDetect: ds.autoDetect !== undefined ? ds.autoDetect : opts.autoDetect,
+            preventSubmit: ds.preventSubmit !== undefined ? ds.preventSubmit : opts.preventSubmit,
+            placeholder: $input.attr("placeholder") || opts.placeholder
+        });
 
-    })();
-    /* ---------- End build ---------- */
+        const id = "pi" + (++uid);
+        let countries = [];
+        let current = null;
 
+        $input.addClass("pi-input").attr({
+            type: "tel",
+            inputmode: "numeric",
+            autocomplete: "tel",
+            placeholder: cfg.placeholder
+        });
 
-    let countries = [];
-    let selectedCountry = null;
+        // ---------- Widget markup ----------
+        $input.wrap('<div class="pi-wrap"></div>');
+        const $wrap = $input.parent();
 
-    $.getJSON("data/countries.json")
-        .done(function (data) {
+        $wrap.prepend(
+            '<button type="button" class="pi-btn" aria-haspopup="listbox" aria-expanded="false">' +
+                '<img class="pi-flag" src="' + FALLBACK_FLAG + '" alt="">' +
+                '<span class="pi-code"></span>' +
+                '<span class="pi-arrow"></span>' +
+            '</button>'
+        );
 
-            countries = Array.isArray(data) ? data : [];
+        $wrap.append(
+            '<div class="pi-dropdown">' +
+                '<div class="pi-search">' + SEARCH_ICON +
+                    '<input type="text" placeholder="' + esc(cfg.searchPlaceholder) + '" autocomplete="off">' +
+                '</div>' +
+                '<div class="pi-list"></div>' +
+            '</div>'
+        );
 
-            if (!countries.length) {
-                console.error("Country data is empty.");
+        const $err = $('<div class="pi-error"></div>');
+        const $ok = $('<div class="pi-success"></div>');
+        $wrap.after($err, $ok);
+
+        const $btn = $wrap.find(".pi-btn");
+        const $flag = $btn.find(".pi-flag");
+        const $code = $btn.find(".pi-code");
+        const $dropdown = $wrap.find(".pi-dropdown");
+        const $search = $dropdown.find(".pi-search input");
+        const $list = $dropdown.find(".pi-list");
+
+        $flag.on("error", function () {
+            if (this.src !== FALLBACK_FLAG) {
+                this.src = FALLBACK_FLAG;
+            }
+        });
+
+        // ---------- Helpers ----------
+        function clearMessages() {
+            $err.removeClass("show").text("");
+            $ok.removeClass("show").text("");
+        }
+
+        function showError(message) {
+            $ok.removeClass("show").text("");
+            $err.text(message).addClass("show");
+            if (typeof cfg.onInvalid === "function") {
+                cfg.onInvalid.call($input[0], message);
+            }
+        }
+
+        function reset() {
+            clearMessages();
+            if (typeof cfg.onReset === "function") {
+                cfg.onReset.call($input[0]);
+            }
+        }
+
+        function getData() {
+            const phone = $input.val().trim();
+            return {
+                country: current ? current.name : "",
+                iso2: current ? (current.iso2 || "") : "",
+                country_code: current ? current.code : "",
+                phone: phone,
+                full_phone: current ? current.code + phone : phone
+            };
+        }
+
+        function fillFields() {
+            const data = getData();
+            setField(fields.countryName, data.country);
+            setField(fields.countryCode, data.country_code);
+            setField(fields.countryIso, data.iso2);
+            setField(fields.phone, data.phone);
+            setField(fields.fullPhone, data.full_phone);
+        }
+
+        function render(search) {
+
+            const keyword = String(search || "").trim().toLowerCase();
+
+            $list.empty();
+
+            let shown = 0;
+
+            countries.forEach(function (country, index) {
+
+                if (
+                    keyword &&
+                    String(country.name || "").toLowerCase().indexOf(keyword) === -1 &&
+                    String(country.code || "").toLowerCase().indexOf(keyword) === -1 &&
+                    String(country.iso2 || "").toLowerCase().indexOf(keyword) === -1
+                ) {
+                    return;
+                }
+
+                shown++;
+
+                $list.append(
+                    '<button type="button" class="pi-item' + (country === current ? " selected" : "") +
+                    '" data-index="' + index + '">' +
+                        '<img class="pi-flag" src="' + esc(country.flag || FALLBACK_FLAG) +
+                        '" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'' + FALLBACK_FLAG + '\';">' +
+                        '<span class="pi-item-name">' + esc(country.name) + '</span>' +
+                        '<span class="pi-item-code">' + esc(country.code) + '</span>' +
+                    '</button>'
+                );
+
+            });
+
+            if (!shown) {
+                $list.html('<div class="pi-none">No country found</div>');
+            }
+
+        }
+
+        function setCountry(country, keepPhone) {
+
+            if (!country) {
                 return;
             }
 
-            geoIpLookup(function (countryCode) {
+            current = country;
 
-                countryCode = (countryCode || "").toUpperCase();
+            $flag.attr({ src: country.flag || FALLBACK_FLAG, alt: country.name });
+            $code.text(country.code);
 
-                selectedCountry = countries.find(function (country) {
-                    return country.iso2 && country.iso2.toUpperCase() === countryCode;
-                });
+            if (!keepPhone) {
+                $input.val("");
+                reset();
+            }
 
-                if (!selectedCountry) {
-                    selectedCountry = countries.find(function (country) {
-                        return country.iso2 && country.iso2.toUpperCase() === "IN";
-                    }) || countries[0];
-                }
+            fillFields();
 
-                updateSelectedCountry();
-                renderCountries();
-
-            });
-
-        })
-        .fail(function (xhr, status, error) {
-            console.error("Unable to load countries.json:", error);
-        });
-
-
-    function geoIpLookup(success) {
-
-        $.get("https://ipinfo.io", function () {}, "jsonp")
-            .always(function (resp) {
-
-                let countryCode = "";
-
-                if (resp && resp.country) {
-                    countryCode = String(resp.country).toUpperCase();
-                }
-
-                success(countryCode);
-
-            });
-
-    }
-
-
-    function updateSelectedCountry() {
-
-        if (!selectedCountry) {
-            return;
-        }
-
-        $("#selectedFlag").attr({
-            src: selectedCountry.flag,
-            alt: selectedCountry.name
-        });
-
-        $("#selectedCode").text(selectedCountry.code);
-        $("#countryName").val(selectedCountry.name);
-        $("#countryCode").val(selectedCountry.code);
-        $("#countryIso").val(selectedCountry.iso2 || "");
-        $("#phoneNumber").attr("placeholder", "Enter mobile number");
-
-    }
-
-
-    function renderCountries(search) {
-
-        const list = $("#countryList");
-
-        list.empty();
-
-        const keyword = String(search || "").trim().toLowerCase();
-
-        const filteredCountries = countries.filter(function (country) {
-
-            const countryName = String(country.name || "").toLowerCase();
-            const countryCode = String(country.code || "").toLowerCase();
-            const isoCode = String(country.iso2 || "").toLowerCase();
-
-            return (
-                countryName.includes(keyword) ||
-                countryCode.includes(keyword) ||
-                isoCode.includes(keyword)
-            );
-
-        });
-
-
-        if (!filteredCountries.length) {
-
-            list.html(`
-                <div class="no-country">
-                    <i class="bi bi-search"></i>
-                    <div>No country found</div>
-                </div>
-            `);
-
-            return;
-        }
-
-
-        filteredCountries.forEach(function (country) {
-
-            const selectedClass =
-                selectedCountry &&
-                selectedCountry.iso2 &&
-                country.iso2 &&
-                selectedCountry.iso2.toUpperCase() === country.iso2.toUpperCase()
-                    ? "selected"
-                    : "";
-
-            list.append(`
-                <button
-                    type="button"
-                    class="country-item ${selectedClass}"
-                    data-country="${country.iso2}"
-                >
-                    <span class="item-flag">
-                        <img
-                            src="${country.flag}"
-                            alt="${country.name}"
-                            loading="lazy"
-                            onerror="this.onerror=null;this.src='https://cdn.jsdelivr.net/gh/twitter/twemoji@latest/assets/svg/1f310.svg';"
-                        >
-                    </span>
-
-                    <span class="item-name">${country.name}</span>
-                    <span class="item-code">${country.code}</span>
-                </button>
-            `);
-
-        });
-
-    }
-
-
-    $("#countryButton").on("click", function (event) {
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        $("#countryDropdown").toggleClass("show");
-
-        $("#countryButton").toggleClass(
-            "active",
-            $("#countryDropdown").hasClass("show")
-        );
-
-        if ($("#countryDropdown").hasClass("show")) {
-            $("#countrySearch").val("").focus();
-            renderCountries();
-        }
-
-    });
-
-
-    $(document).on("click", ".country-item", function (event) {
-
-        event.preventDefault();
-
-        const isoCode = String($(this).data("country") || "").toUpperCase();
-
-        const country = countries.find(function (item) {
-            return item.iso2 && item.iso2.toUpperCase() === isoCode;
-        });
-
-        if (!country) {
-            return;
-        }
-
-        selectedCountry = country;
-
-        updateSelectedCountry();
-
-        $("#countryDropdown").removeClass("show");
-        $("#countryButton").removeClass("active");
-
-        $("#phoneNumber").val("");
-        $("#phoneError").removeClass("show").text("");
-        $("#phoneSuccess").removeClass("show").text("");
-        $("#resultBox").hide();
-
-        renderCountries();
-
-    });
-
-
-    $("#countrySearch").on("input", function () {
-        renderCountries($(this).val());
-    });
-
-
-    $(document).on("click", function (event) {
-
-        if (!$(event.target).closest(".custom-phone").length) {
-            $("#countryDropdown").removeClass("show");
-            $("#countryButton").removeClass("active");
-        }
-
-    });
-
-
-    $("#phoneNumber").on("input", function () {
-
-        let value = $(this).val().replace(/\D/g, "");
-
-        if (selectedCountry && selectedCountry.max) {
-
-            const maxLength = parseInt(selectedCountry.max, 10);
-
-            if (!isNaN(maxLength) && value.length > maxLength) {
-                value = value.substring(0, maxLength);
+            if (typeof cfg.onChange === "function") {
+                cfg.onChange.call($input[0], country);
             }
 
         }
 
-        $(this).val(value);
-
-        $("#phoneError").removeClass("show").text("");
-        $("#phoneSuccess").removeClass("show").text("");
-        $("#resultBox").hide();
-
-    });
-
-
-    $("#phoneForm").on("submit", function (event) {
-
-        event.preventDefault();
-
-        if (!selectedCountry) {
-            $("#phoneError").text("Please select a country.").addClass("show");
-            return;
+        function findCountry(key) {
+            const k = String(key || "").toLowerCase();
+            return countries.find(function (c) {
+                return (
+                    String(c.iso2 || "").toLowerCase() === k ||
+                    String(c.name || "").toLowerCase() === k
+                );
+            });
         }
 
-        const phone = $("#phoneNumber").val().trim();
-
-        if (!phone) {
-            $("#phoneError").text("Please enter your phone number.").addClass("show");
-            $("#phoneSuccess").removeClass("show");
-            $("#phoneNumber").focus();
-            return;
+        function open() {
+            $(".pi-dropdown.show").not($dropdown).removeClass("show").siblings(".pi-btn").removeClass("active");
+            $dropdown.addClass("show");
+            $btn.addClass("active").attr("aria-expanded", "true");
+            $search.val("").trigger("focus");
+            render();
         }
 
-        const phoneLength = phone.length;
-        const minLength = parseInt(selectedCountry.min, 10);
-        const maxLength = parseInt(selectedCountry.max, 10);
-
-        if (!isNaN(minLength) && phoneLength < minLength) {
-            $("#phoneError")
-                .text("Please enter a valid " + selectedCountry.name + " phone number.")
-                .addClass("show");
-            $("#phoneSuccess").removeClass("show");
-            return;
+        function close() {
+            $dropdown.removeClass("show");
+            $btn.removeClass("active").attr("aria-expanded", "false");
         }
 
-        if (!isNaN(maxLength) && phoneLength > maxLength) {
-            $("#phoneError")
-                .text("Please enter a valid " + selectedCountry.name + " phone number.")
-                .addClass("show");
-            $("#phoneSuccess").removeClass("show");
-            return;
+        function validate() {
+
+            if (!current) {
+                showError(cfg.messages.country);
+                return false;
+            }
+
+            const phone = $input.val().trim();
+
+            if (!phone) {
+                showError(cfg.messages.empty);
+                $input.trigger("focus");
+                return false;
+            }
+
+            const min = parseInt(current.min, 10);
+            const max = parseInt(current.max, 10);
+
+            if ((!isNaN(min) && phone.length < min) || (!isNaN(max) && phone.length > max)) {
+                showError(cfg.messages.invalid.replace("{country}", current.name));
+                return false;
+            }
+
+            fillFields();
+
+            $err.removeClass("show").text("");
+            $ok.text(cfg.messages.valid).addClass("show");
+
+            if (typeof cfg.onValid === "function") {
+                cfg.onValid.call($input[0], getData());
+            }
+
+            return true;
+
         }
 
-        const fullPhone = selectedCountry.code + phone;
-
-        $("#hiddenPhone").val(phone);
-        $("#fullPhone").val(fullPhone);
-
-        $("#phoneError").removeClass("show").text("");
-        $("#phoneSuccess").text("Phone number is valid.").addClass("show");
-
-        $("#resultCountry").text(selectedCountry.name);
-        $("#resultCode").text(selectedCountry.code);
-        $("#resultPhone").text(phone);
-        $("#resultFull").text(fullPhone);
-
-        $("#resultBox").stop(true, true).slideDown();
-
-        console.log({
-            country: selectedCountry.name,
-            iso2: selectedCountry.iso2,
-            country_code: selectedCountry.code,
-            phone: phone,
-            full_phone: fullPhone
+        // ---------- Events ----------
+        $btn.on("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            $dropdown.hasClass("show") ? close() : open();
         });
 
+        $search.on("input", function () {
+            render($(this).val());
+        });
+
+        $list.on("click", ".pi-item", function (event) {
+            event.preventDefault();
+            setCountry(countries[$(this).data("index")]);
+            close();
+            $input.trigger("focus");
+        });
+
+        $wrap.on("keydown", function (event) {
+            if (event.key === "Escape") {
+                close();
+                $btn.trigger("focus");
+            }
+        });
+
+        $(document).on("click." + id, function (event) {
+            if (!$(event.target).closest($wrap).length) {
+                close();
+            }
+        });
+
+        $input.on("input", function () {
+
+            let value = $(this).val().replace(/\D/g, "");
+
+            const max = current ? parseInt(current.max, 10) : NaN;
+
+            if (!isNaN(max) && value.length > max) {
+                value = value.substring(0, max);
+            }
+
+            $(this).val(value);
+
+            reset();
+            fillFields();
+
+        });
+
+        // Form submit par validation (default: input ka apna form)
+        const $form = cfg.form ? $(cfg.form) : $input.closest("form");
+
+        if ($form.length) {
+            $form.on("submit." + id, function (event) {
+                const valid = validate();
+                if (!valid || cfg.preventSubmit) {
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Public API
+        $input.data("piApi", {
+            validate: validate,
+            val: getData,
+            set: function (key) {
+                setCountry(findCountry(key), true);
+            }
+        });
+
+        // ---------- Data load ----------
+        loadCountries(cfg.jsonUrl)
+            .done(function (list) {
+
+                countries = list;
+
+                if (!countries.length) {
+                    console.error("Country data is empty.");
+                    return;
+                }
+
+                render();
+
+                if (cfg.selected) {
+                    setCountry(findCountry(cfg.selected) || countries[0], true);
+                } else if (cfg.autoDetect) {
+                    loadGeo().done(function (iso) {
+                        setCountry(findCountry(iso) || findCountry(cfg.defaultIso) || countries[0], true);
+                    });
+                } else {
+                    setCountry(findCountry(cfg.defaultIso) || countries[0], true);
+                }
+
+            })
+            .fail(function (xhr, status, error) {
+                console.error("Unable to load " + cfg.jsonUrl + ":", error);
+            });
+
+    }
+
+    $.fn.phoneInput = function (options) {
+
+        // Method call: .phoneInput("validate") / .phoneInput("val") / .phoneInput("set", "US")
+        if (typeof options === "string") {
+
+            const args = Array.prototype.slice.call(arguments, 1);
+            let result;
+
+            this.each(function (i) {
+                const api = $(this).data("piApi");
+                if (api && typeof api[options] === "function") {
+                    const r = api[options].apply(api, args);
+                    if (i === 0) {
+                        result = r;
+                    }
+                }
+            });
+
+            return result === undefined ? this : result;
+
+        }
+
+        const opts = $.extend(true, {}, $.fn.phoneInput.defaults, options);
+
+        return this.each(function () {
+            init($(this), opts);
+        });
+
+    };
+
+    $.fn.phoneInput.defaults = {
+        jsonUrl: "data/countries.json",
+        form: null,               // form ka selector; default: input ka apna form
+        fields: {                 // hidden inputs ke selectors (sab optional)
+            countryName: null,
+            countryCode: null,
+            countryIso: null,
+            phone: null,
+            fullPhone: null
+        },
+        placeholder: "Enter mobile number",
+        searchPlaceholder: "Search country or code...",
+        autoDetect: true,         // IP se country select
+        defaultIso: "IN",         // detect fail ho to
+        selected: null,           // ya fixed country, e.g. "US"
+        preventSubmit: false,     // true = valid hone par bhi form submit na ho
+        name: "phone",            // sirf tab, jab container (div) pass karo
+        messages: {
+            country: "Please select a country.",
+            empty: "Please enter your phone number.",
+            invalid: "Please enter a valid {country} phone number.",
+            valid: "Phone number is valid."
+        },
+        onChange: null,           // function (country) {}
+        onValid: null,            // function (data) {}
+        onInvalid: null,          // function (message) {}
+        onReset: null             // function () {}  (country badalne ya type karne par)
+    };
+
+    // Auto-init: <input type="tel" data-phone-input>
+    $(function () {
+        $("[data-phone-input]").phoneInput();
     });
+
+})(jQuery);
+</script>
+
+<!-- ================= Usage (ye aap apne page me likhoge) ================= -->
+<script>
+$(document).ready(function () {
+
+    function showResult(data) {
+        $("#resultCountry").text(data.country);
+        $("#resultCode").text(data.country_code);
+        $("#resultPhone").text(data.phone);
+        $("#resultFull").text(data.full_phone);
+        $("#resultBox").stop(true, true).slideDown();
+    }
+
+    // ID se
+    $("#phoneNumber").phoneInput({
+        fields: {
+            countryName: "#countryName",
+            countryCode: "#countryCode",
+            countryIso: "#countryIso",
+            phone: "#hiddenPhone",
+            fullPhone: "#fullPhone"
+        },
+        preventSubmit: true,       // demo: page reload nahi hoga
+        onValid: showResult,
+        onReset: function () { $("#resultBox").hide(); }
+    });
+
+    // Class se (fields data-attributes me hain)
+    $(".alt-phone").phoneInput({ preventSubmit: true });
 
 });
 </script>
